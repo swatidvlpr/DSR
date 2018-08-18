@@ -29,7 +29,7 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
     }
     protected void Button1_Click(object sender, EventArgs e)
     {
-        using (SqlCommand cmd1 = new SqlCommand("insert into Delivery_challan_add(Customer_id, Customer_name, Mobile_no, Email_id, Address, Challlan_no, Order_no, Date, Company_id, Category_id, Modelnm, Model_no,Hirepurchase_lease_hypothecated_with_ms,Engine_no, Chassis_no, Ingnition_key_no, Battery_make, Batteryno, Tyremake,Branchid,branchname) values(@Customer_id,@Customer_name,@Mobile_no,@Email_id,@Address,@Challlan_no,@Order_no,@Date,@Company_id,@Category_id,@Modelnm,@Model_no,@Hirepurchase_lease_hypothecated_with_ms,@Engine_no,@Chassis_no,@Ingnition_key_no,@Battery_make,@Batteryno,@Tyremake,@Branchid,@branchname)", gl.con))
+        using (SqlCommand cmd1 = new SqlCommand("insert into Delivery_challan_add(Customer_id, Customer_name, Mobile_no, Email_id, Address, Challlan_no, Order_no, Date, Company_id, location_id, Category_id, Modelnm, Model_no, Hirepurchase_lease_hypothecated_with_ms, Engine_no, Chassis_no, Ingnition_key_no, Battery_make, Batteryno, Tyremake,Branchid,branchname) values(@Customer_id,@Customer_name,@Mobile_no,@Email_id,@Address,@Challlan_no,@Order_no,@Date,@Company_id,@location_id,@Category_id,@Modelnm,@Model_no,@Hirepurchase_lease_hypothecated_with_ms,@Engine_no,@Chassis_no,@Ingnition_key_no,@Battery_make,@Batteryno,@Tyremake,@Branchid,@branchname)", gl.con))
         {
 
             cmd1.Parameters.AddWithValue("@Customer_id",ddlcustomer.SelectedValue);
@@ -41,6 +41,7 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
             cmd1.Parameters.AddWithValue("@Order_no",txtOrderno.Text);
             cmd1.Parameters.AddWithValue("@Date", txtdate.Text);
             cmd1.Parameters.AddWithValue("@Company_id",ddlcompany.SelectedValue);
+            cmd1.Parameters.AddWithValue("@location_id",ddllocation.SelectedValue);
             cmd1.Parameters.AddWithValue("@Category_id", ddlCategory.SelectedValue);
             cmd1.Parameters.AddWithValue("@Modelnm", ddlmodelnm.SelectedItem.Text);
             cmd1.Parameters.AddWithValue("@Model_no", txtmodelno.Text);
@@ -98,12 +99,21 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
         try
         {
 
-            gl.ddlcond("Categorymaster", "Categorynm", "Category_id", "companyid", "'" + ddlcompany.SelectedValue + "'", ddlCategory);
-            ddlCategory.SelectedIndex = 0;
+        gl.ddlcond("locationmaster", "Location_name", "location_id", "Company_id", "'" + ddlcompany.SelectedValue + "'", ddllocation);
+            ddllocation.SelectedIndex = 0;
         }
         catch
         {
         }
+    }
+    protected void ddllocation_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        try
+        {
+            gl.ddlcond("Categorymaster", "Categorynm", "Category_id", "location_id", "'" + ddllocation.SelectedValue + "'", ddlCategory);
+            ddlCategory.SelectedIndex = 0;
+        }
+        catch { }
     }
     protected void ddlCategory_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -186,6 +196,7 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
             txtaddress.Text = gl.ds.Tables[0].Rows[0]["Address"].ToString();
 
             string Company_id1 = gl.ds.Tables[0].Rows[0]["Company_id"].ToString();
+            string location_id1 = gl.ds.Tables[0].Rows[0]["location_id"].ToString();
             string cid = gl.ds.Tables[0].Rows[0]["Category_id"].ToString();
             string Modelname1 = gl.ds.Tables[0].Rows[0]["Modelname"].ToString();
             string branch_id = gl.ds.Tables[0].Rows[0]["Branchid"].ToString();
@@ -194,7 +205,25 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
                 if (ddlcompany.Items[i].Value == Company_id1)
                 {
                     ddlcompany.Items[i].Selected = true;
-                    da = new SqlDataAdapter("select Category_id,Categorynm,companyid from Categorymaster where companyid='" + Company_id1 + "'", con);
+                    da = new SqlDataAdapter("select location_id,Location_name,Company_id from locationmaster where Company_id='" + Company_id1 + "'", con);
+                    da.Fill(ds);
+                    ddllocation.DataSource = ds;
+                    ddllocation.DataTextField = "Location_name";
+                    ddllocation.DataValueField = "location_id";
+                    ddllocation.DataBind();
+
+                }
+                else
+                {
+                    ddlcompany.Items[i].Selected = false;
+                }
+            }
+            for (int i = 0; i < ddllocation.Items.Count; i++)
+            {
+                if (ddllocation.Items[i].Value == location_id1)
+                {
+                    ddllocation.Items[i].Selected = true;
+                    da = new SqlDataAdapter("select Category_id,Categorynm,location_id from Categorymaster where location_id='" + location_id1 + "'", con);
                     da.Fill(ds);
                     ddlCategory.DataSource = ds;
                     ddlCategory.DataTextField = "Categorynm";
@@ -204,7 +233,7 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
                 }
                 else
                 {
-                    ddlcompany.Items[i].Selected = false;
+                    ddllocation.Items[i].Selected = false;
                 }
             }
 
@@ -275,14 +304,22 @@ public partial class DSR_Deliverychallan : System.Web.UI.Page
             }
         }
     }
+    protected void ddllocation_DataBound(object sender, EventArgs e)
+    {
+        //Convert.ToInt32(ddllocation.SelectedValue);
+        ddllocation.Items.Insert(0, new ListItem("-Select-", "-Select-"));
+    }      
+ 
     protected void ddlCategory_DataBound(object sender, EventArgs e)
     {
-        Convert.ToInt32(ddlCategory.SelectedValue);
+        //Convert.ToInt32(ddlCategory.SelectedValue);
         ddlCategory.Items.Insert(0, new ListItem("-Select-", "-Select-")); 
     }
     protected void ddlmodelnm_DataBound(object sender, EventArgs e)
     {
-        Convert.ToInt32(ddlmodelnm.SelectedValue);
+        //Convert.ToInt32(ddlmodelnm.SelectedValue);
         ddlmodelnm.Items.Insert(0, new ListItem("-Select-", "-Select-")); 
     }
+
+   
 }

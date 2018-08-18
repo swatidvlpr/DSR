@@ -71,6 +71,15 @@
                 <asp:RequiredFieldValidator ID="RequiredFieldValidator12" runat="server"  
                     ControlToValidate="ddlcompany" ErrorMessage="Enter company name" ValidationGroup="a"></asp:RequiredFieldValidator>
         </div>
+                <div class="col-md-6 form-group">
+            <label >Location Name </label> 
+             
+             <asp:DropDownList ID="ddllocation" runat="server" CssClass="form-control" AutoPostBack="True" OnDataBound="ddllocation_DataBound" OnSelectedIndexChanged="ddllocation_SelectedIndexChanged">
+                 
+              </asp:DropDownList>           
+                <asp:RequiredFieldValidator ID="RequiredFieldValidator20" runat="server"  
+                    ControlToValidate="ddllocation" ErrorMessage="Enter location name" ValidationGroup="a"></asp:RequiredFieldValidator>
+        </div>
          <div class="col-md-6 form-group">
             <label >Category Name </label> 
              <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-control" AutoPostBack="True" OnSelectedIndexChanged="ddlCategory_SelectedIndexChanged" OnDataBound="ddlCategory_DataBound">                 
